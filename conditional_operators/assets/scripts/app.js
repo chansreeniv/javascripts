@@ -3,22 +3,34 @@ const STRONG_ATTACK_VALUE = 17;
 const MONSTER_ATTACK_VALUE = 14;
 const HEAL_VALUE = 20;
 
-const MODE_ATTACK = 'ATTACK';
-const MODE_STRONG_ATTACK = 'STRONG ATTACK';
+const MODE_ATTACK = "ATTACK";
+const MODE_STRONG_ATTACK = "STRONG ATTACK";
 
-const LOG_EVENT_PLAYER_ATTACK = 'PLAYER ATTACK';
-const LOG_EVENT_PLAYER_STRONG_ATTACK = 'PLAYER STRONG ATTACK';
-const LOG_EVENT_MONSTER_ATTACK = 'MONSTER ATTACK';
-const LOG_EVENT_PLAYER_HEAL = 'PLAYER HEAL';
-const LOG_EVENT_GAME_OVER = 'GAME OVER';
+const LOG_EVENT_PLAYER_ATTACK = "PLAYER ATTACK";
+const LOG_EVENT_PLAYER_STRONG_ATTACK = "PLAYER STRONG ATTACK";
+const LOG_EVENT_MONSTER_ATTACK = "MONSTER ATTACK";
+const LOG_EVENT_PLAYER_HEAL = "PLAYER HEAL";
+const LOG_EVENT_GAME_OVER = "GAME OVER";
 
-const enterValue = prompt('set max life for player and monster. ', '100');
+function getMaxLifeValue() {
+  const enterValue = prompt("set max life for player and monster. ", "100");
 
-let chosenMaxLife = +enterValue;
+  // let chosenMaxLife = +enterValue;
+  const parsedValue = parseInt(enterValue);
 
-if (isNaN(chosenMaxLife) || chosenMaxLife <= 0) {
+  if (isNaN(parsedValue) || parsedValue <= 0) {
+    throw { message: "invalid user input not a number" };
+  }
+  return parsedValue;
+}
+
+let chosenMaxLife;
+
+try {
+  chosenMaxLife = getMaxLifeValue();
+} catch (error) {
+  console.log(error);
   chosenMaxLife = 100;
-  console.log('maxlifeset at 100');
 }
 
 let currentMonsterHealth = chosenMaxLife;
@@ -31,51 +43,50 @@ adjustHealthBars(chosenMaxLife);
 function writeToLog(event, value, monsterHealth, playerHealth) {
   let logEntry = {
     event: event,
-    value: value, 
+    value: value,
     finalMonsterHealth: monsterHealth,
-    finalPlayerHealth: playerHealth
-
-  }
+    finalPlayerHealth: playerHealth,
+  };
 
   switch (event) {
     case LOG_EVENT_PLAYER_ATTACK:
-      logEntry.target = 'MONSTER';
+      logEntry.target = "MONSTER";
       break;
     case LOG_EVENT_PLAYER_STRONG_ATTACK:
       logEntry = {
         event: event,
-        value: value, 
-        target: 'MONSTER',
+        value: value,
+        target: "MONSTER",
         finalMonsterHealth: monsterHealth,
-        finalPlayerHealth: playerHealth
-      }
+        finalPlayerHealth: playerHealth,
+      };
       break;
     case LOG_EVENT_MONSTER_ATTACK:
       logEntry = {
         event: event,
-        value: value, 
-        target: 'PLAYER',
+        value: value,
+        target: "PLAYER",
         finalMonsterHealth: monsterHealth,
-        finalPlayerHealth: playerHealth
-      }
+        finalPlayerHealth: playerHealth,
+      };
       break;
     case LOG_EVENT_PLAYER_HEAL:
       logEntry = {
         event: event,
-        value: value, 
-        target: 'PLAYER',
+        value: value,
+        target: "PLAYER",
         finalMonsterHealth: monsterHealth,
-        finalPlayerHealth: playerHealth
-      }
+        finalPlayerHealth: playerHealth,
+      };
       break;
     case LOG_EVENT_GAME_OVER:
       logEntry = {
         event: event,
-        value: value, 
+        value: value,
         finalMonsterHealth: monsterHealth,
-        finalPlayerHealth: playerHealth
-      }
-      break;     
+        finalPlayerHealth: playerHealth,
+      };
+      break;
     default:
       logEntry = {};
       break;
@@ -85,7 +96,7 @@ function writeToLog(event, value, monsterHealth, playerHealth) {
   // }else if (event === LOG_EVENT_PLAYER_STRONG_ATTACK){
   //   logEntry = {
   //     event: event,
-  //     value: value, 
+  //     value: value,
   //     target: 'MONSTER',
   //     finalMonsterHealth: monsterHealth,
   //     finalPlayerHealth: playerHealth
@@ -93,7 +104,7 @@ function writeToLog(event, value, monsterHealth, playerHealth) {
   // } else if (event === LOG_EVENT_MONSTER_ATTACK){
   //   logEntry = {
   //     event: event,
-  //     value: value, 
+  //     value: value,
   //     target: 'PLAYER',
   //     finalMonsterHealth: monsterHealth,
   //     finalPlayerHealth: playerHealth
@@ -101,7 +112,7 @@ function writeToLog(event, value, monsterHealth, playerHealth) {
   // }else if (event === LOG_EVENT_PLAYER_HEAL){
   //   logEntry = {
   //     event: event,
-  //     value: value, 
+  //     value: value,
   //     target: 'PLAYER',
   //     finalMonsterHealth: monsterHealth,
   //     finalPlayerHealth: playerHealth
@@ -109,18 +120,18 @@ function writeToLog(event, value, monsterHealth, playerHealth) {
   // } else if (event === LOG_EVENT_GAME_OVER){
   //   logEntry = {
   //     event: event,
-  //     value: value, 
+  //     value: value,
   //     finalMonsterHealth: monsterHealth,
   //     finalPlayerHealth: playerHealth
   //   }
-  // } 
+  // }
   battleLog.push(logEntry);
 }
 
-function reset(){
-currentMonsterHealth = chosenMaxLife;
-currentPlayerHealth = chosenMaxLife;
-resetGame(chosenMaxLife);
+function reset() {
+  currentMonsterHealth = chosenMaxLife;
+  currentPlayerHealth = chosenMaxLife;
+  resetGame(chosenMaxLife);
 }
 
 function endRound() {
@@ -129,7 +140,12 @@ function endRound() {
   const playerDamage = dealPlayerDamage(MONSTER_ATTACK_VALUE);
   currentPlayerHealth -= playerDamage;
 
-  writeToLog(LOG_EVENT_MONSTER_ATTACK, playerDamage, currentMonsterHealth, currentPlayerHealth);
+  writeToLog(
+    LOG_EVENT_MONSTER_ATTACK,
+    playerDamage,
+    currentMonsterHealth,
+    currentPlayerHealth
+  );
 
   if (currentPlayerHealth <= 0 && hasBonusLife) {
     hasBonusLife = false;
@@ -141,22 +157,37 @@ function endRound() {
 
   if (currentMonsterHealth <= 0 && currentPlayerHealth > 0) {
     alert("Player 1 Wins");
-    writeToLog(LOG_EVENT_MONSTER_ATTACK, 'Player 1 wins!!', currentMonsterHealth, currentPlayerHealth);
+    writeToLog(
+      LOG_EVENT_MONSTER_ATTACK,
+      "Player 1 wins!!",
+      currentMonsterHealth,
+      currentPlayerHealth
+    );
   } else if (currentPlayerHealth <= 0 && currentMonsterHealth > 0) {
     alert("game Over");
-    writeToLog(LOG_EVENT_MONSTER_ATTACK, 'Game Over', currentMonsterHealth, currentPlayerHealth);
+    writeToLog(
+      LOG_EVENT_MONSTER_ATTACK,
+      "Game Over",
+      currentMonsterHealth,
+      currentPlayerHealth
+    );
   } else if (currentPlayerHealth <= 0 && currentMonsterHealth <= 0) {
     alert("Its a draw");
-    writeToLog(LOG_EVENT_MONSTER_ATTACK, 'Its a draw', currentMonsterHealth, currentPlayerHealth);
+    writeToLog(
+      LOG_EVENT_MONSTER_ATTACK,
+      "Its a draw",
+      currentMonsterHealth,
+      currentPlayerHealth
+    );
   }
 
-  if( currentMonsterHealth <= 0 || currentPlayerHealth <= 0) {
-      reset();
+  if (currentMonsterHealth <= 0 || currentPlayerHealth <= 0) {
+    reset();
   }
 }
 
 function attackMonster(mode) {
-  const maxDamage = mode === MODE_ATTACK? ATTACK_VALUE : STRONG_ATTACK_VALUE;
+  const maxDamage = mode === MODE_ATTACK ? ATTACK_VALUE : STRONG_ATTACK_VALUE;
   //using ternary Expression
   let logEvent;
   if (mode === MODE_ATTACK) {
@@ -190,23 +221,28 @@ function healPlayerHandler() {
   }
   increasePlayerHealth(healValue);
   currentPlayerHealth += healValue;
-  writeToLog(LOG_EVENT_PLAYER_HEAL, healValue, currentMonsterHealth, currentPlayerHealth);
+  writeToLog(
+    LOG_EVENT_PLAYER_HEAL,
+    healValue,
+    currentMonsterHealth,
+    currentPlayerHealth
+  );
   endRound();
 }
 
-function printHandler(){ 
+function printHandler() {
   let i = 0;
-for(const logEntry of battleLog){
-  console.log(`#${i}`)
-  for(const key in logEntry){
-    console.log(`${key} => ${logEntry[key]}`)
+  for (const logEntry of battleLog) {
+    console.log(`#${i}`);
+    for (const key in logEntry) {
+      console.log(`${key} => ${logEntry[key]}`);
+    }
+    i++;
   }
-  i++;
-}
-  console.log(battleLog)
+  console.log(battleLog);
 }
 
 attackBtn.addEventListener("click", attackHandler);
 strongAttackBtn.addEventListener("click", strongAttackHandler);
 healBtn.addEventListener("click", healPlayerHandler);
-logBtn.addEventListener("click", printHandler)
+logBtn.addEventListener("click", printHandler);
